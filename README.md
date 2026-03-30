@@ -1,5 +1,7 @@
 # Pokédex
 
+**Live:** https://pokedex-94e6.vercel.app/
+
 A Next.js app that displays random Pokémon and their details, powered by [PokéAPI](https://pokeapi.co) via [pokenode-ts](https://github.com/Gabb-c/pokenode-ts).
 
 ## Features
