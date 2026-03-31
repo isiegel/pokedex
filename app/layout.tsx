@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import JsonLd from './components/JsonLd';
 import './globals.css';
 
@@ -40,6 +41,7 @@ export default function RootLayout({
       <body suppressHydrationWarning className="min-h-full flex flex-col">
         <JsonLd data={jsonLd} />
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
