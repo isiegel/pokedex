@@ -2,6 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
+import {
+  MAX_POKEMON_ID,
+  POKEMON_COUNT,
+} from '../lib/pokemon-constants';
 import { randomIds, serializeIds } from '../lib/pokemon-utils';
 
 type RefreshButtonProps = {
@@ -10,8 +14,8 @@ type RefreshButtonProps = {
 };
 
 export default function RefreshButton({
-  count = 20,
-  max = 898,
+  count = POKEMON_COUNT,
+  max = MAX_POKEMON_ID,
 }: RefreshButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();

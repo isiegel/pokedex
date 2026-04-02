@@ -4,11 +4,9 @@ import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import RefreshButton from './components/RefreshButton';
 import TypeBadge from './components/TypeBadge';
+import { MAX_POKEMON_ID, POKEMON_COUNT } from './lib/pokemon-constants';
 import { pokeClient } from './lib/pokemon-client';
 import { parseIds, randomIds, serializeIds } from './lib/pokemon-utils';
-
-const POKEMON_COUNT = 20;
-const MAX_POKEMON_ID = 898;
 
 export default async function Landing(props: PageProps<'/'>) {
   await connection();

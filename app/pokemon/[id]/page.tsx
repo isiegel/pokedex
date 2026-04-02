@@ -1,14 +1,15 @@
 import JsonLd from '@/app/components/JsonLd';
 import TypeBadge from '@/app/components/TypeBadge';
+import {
+  MAX_POKEMON_ID,
+  POKEMON_COUNT,
+} from '@/app/lib/pokemon-constants';
 import { pokeClient } from '@/app/lib/pokemon-client';
 import { genderLabel, parseIds } from '@/app/lib/pokemon-utils';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-
-const POKEMON_COUNT = 20;
-const MAX_POKEMON_ID = 898;
 
 // automatically used by Next.js to generate the page metadata (title, description, etc.)
 export async function generateMetadata(
