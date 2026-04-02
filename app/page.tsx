@@ -1,17 +1,28 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import RefreshButton from './components/RefreshButton';
 import TypeBadge from './components/TypeBadge';
 import { pokeClient } from './lib/pokemon-client';
-import { randomIds } from './lib/pokemon-utils';
+import { parseIds, randomIds, serializeIds } from './lib/pokemon-utils';
 
-export default async function Landing() {
+const POKEMON_COUNT = 20;
+const MAX_POKEMON_ID = 898;
+
+export default async function Landing(props: PageProps<'/'>) {
   await connection();
-  const ids = randomIds(20, 898);
+  const searchParams = await props.searchParams;
+  const ids = parseIds(searchParams.ids, POKEMON_COUNT, MAX_POKEMON_ID);
+
+  if (!ids) {
+    redirect(`/?ids=${serializeIds(randomIds(POKEMON_COUNT, MAX_POKEMON_ID))}`);
+  }
+
   const pokemon = await Promise.all(
     ids.map((id) => pokeClient.pokemon.getPokemonById(id)),
   );
+  const idsParam = serializeIds(ids);
 
   return (
     <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 px-6 py-12">
@@ -23,14 +34,17 @@ export default async function Landing() {
           <p className="text-zinc-500 dark:text-zinc-400">
             20 random Pokémon — refresh for more
           </p>
-          <RefreshButton />
+          <RefreshButton count={POKEMON_COUNT} max={MAX_POKEMON_ID} />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {/* loop through the random pokemon chars */}
           {pokemon.map((p, i) => (
             <Link
               key={p.id}
-              href={`/pokemon/${p.id}`}
+              href={{
+                pathname: `/pokemon/${p.id}`,
+                query: { ids: idsParam },
+              }}
               className="group bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 flex flex-col items-center gap-2 hover:border-zinc-400 dark:hover:border-zinc-600 hover:shadow-md transition-all"
             >
               <span className="text-xs text-zinc-400 self-start">

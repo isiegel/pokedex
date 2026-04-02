@@ -1,11 +1,14 @@
 import JsonLd from '@/app/components/JsonLd';
 import TypeBadge from '@/app/components/TypeBadge';
 import { pokeClient } from '@/app/lib/pokemon-client';
-import { genderLabel } from '@/app/lib/pokemon-utils';
+import { genderLabel, parseIds } from '@/app/lib/pokemon-utils';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+
+const POKEMON_COUNT = 20;
+const MAX_POKEMON_ID = 898;
 
 // automatically used by Next.js to generate the page metadata (title, description, etc.)
 export async function generateMetadata(
@@ -26,6 +29,8 @@ export async function generateMetadata(
 
 export default async function PokemonPage(props: PageProps<'/pokemon/[id]'>) {
   const { id } = await props.params;
+  const searchParams = await props.searchParams;
+  const ids = parseIds(searchParams.ids, POKEMON_COUNT, MAX_POKEMON_ID);
   // fetch both the pokemon and species data in parallel since they're independent (faster)
   const [pokemon, species] = await Promise.all([
     pokeClient.pokemon.getPokemonById(Number(id)),
@@ -65,7 +70,7 @@ export default async function PokemonPage(props: PageProps<'/pokemon/[id]'>) {
       <JsonLd data={jsonLd} />
       <div className="max-w-2xl mx-auto">
         <Link
-          href="/"
+          href={ids ? { pathname: '/', query: { ids: searchParams.ids } } : '/'}
           className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 mb-8 transition-colors"
         >
           ← Back to Pokédex
