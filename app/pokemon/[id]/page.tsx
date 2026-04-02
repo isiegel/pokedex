@@ -82,6 +82,7 @@ export default async function PokemonPage(props: PageProps<'/pokemon/[id]'>) {
                 className="object-contain"
                 sizes="160px"
                 priority
+                unoptimized
               />
             </div>
             <div className="flex-1 text-center sm:text-left">

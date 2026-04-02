@@ -44,6 +44,7 @@ export default async function Landing() {
                   className="object-contain group-hover:scale-110 transition-transform"
                   sizes="96px"
                   priority={i === 0}
+                  unoptimized
                 />
               </div>
               <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 capitalize">
