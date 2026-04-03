@@ -15,9 +15,10 @@ export default async function Landing(props: PageProps<'/'>) {
     redirect(`/?ids=${serializeIds(randomIds(POKEMON_COUNT, MAX_POKEMON_ID))}`);
   }
 
-  const pokemon = await Promise.all(
+  const results = await Promise.allSettled(
     ids.map((id) => pokeClient.pokemon.getPokemonById(id)),
   );
+  const pokemon = results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []));
   const idsParam = serializeIds(ids);
 
   return (
