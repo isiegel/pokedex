@@ -43,7 +43,7 @@ export default function FavoriteButton({
       }
       aria-pressed={isFavorite}
       onClick={handleFavoriteClick}
-      className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${className} ${
+      className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors hover:cursor-pointer ${className} ${
         isFavorite
           ? 'border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-300'
           : 'border-zinc-200 bg-white text-zinc-400 hover:text-rose-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-500'
