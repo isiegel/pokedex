@@ -1,10 +1,8 @@
+import FavoriteButton from '@/app/components/FavoriteButton';
 import JsonLd from '@/app/components/JsonLd';
 import TypeBadge from '@/app/components/TypeBadge';
-import {
-  MAX_POKEMON_ID,
-  POKEMON_COUNT,
-} from '@/app/lib/pokemon-constants';
 import { pokeClient } from '@/app/lib/pokemon-client';
+import { MAX_POKEMON_ID, POKEMON_COUNT } from '@/app/lib/pokemon-constants';
 import { genderLabel, parseIds } from '@/app/lib/pokemon-utils';
 import type { Metadata } from 'next';
 import Image from 'next/image';
@@ -95,9 +93,15 @@ export default async function PokemonPage(props: PageProps<'/pokemon/[id]'>) {
               <p className="text-sm text-zinc-400 font-mono mb-1">
                 #{String(pokemon.id).padStart(3, '0')}
               </p>
-              <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 capitalize mb-3">
-                {pokemon.name}
-              </h1>
+              <div className="mb-3 flex items-center justify-center gap-3 sm:justify-start">
+                <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 capitalize">
+                  {pokemon.name}
+                </h1>
+                <FavoriteButton
+                  pokemonId={pokemon.id}
+                  pokemonName={pokemon.name}
+                />
+              </div>
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 {pokemon.types.map(({ type }) => (
                   <TypeBadge key={type.name} name={type.name} size="md" />
