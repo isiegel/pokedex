@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
-import PokemonCard from './components/PokemonCard';
+import PokemonBrowser from './components/PokemonBrowser';
 import RefreshButton from './components/RefreshButton';
-import { MAX_POKEMON_ID, POKEMON_COUNT } from './lib/pokemon-constants';
 import { pokeClient } from './lib/pokemon-client';
+import { MAX_POKEMON_ID, POKEMON_COUNT } from './lib/pokemon-constants';
 import { parseIds, randomIds, serializeIds } from './lib/pokemon-utils';
 
 export default async function Landing(props: PageProps<'/'>) {
@@ -32,16 +32,7 @@ export default async function Landing(props: PageProps<'/'>) {
           </p>
           <RefreshButton count={POKEMON_COUNT} max={MAX_POKEMON_ID} />
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {pokemon.map((p, i) => (
-            <PokemonCard
-              key={p.id}
-              idsParam={idsParam}
-              pokemon={p}
-              priority={i === 0}
-            />
-          ))}
-        </div>
+        <PokemonBrowser idsParam={idsParam} pokemon={pokemon} />
       </div>
     </main>
   );
