@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { genderLabel, randomIds } from '../app/lib/pokemon-utils';
+import {
+  genderLabel,
+  parseIds,
+  randomIds,
+  serializeIds,
+} from '../app/lib/pokemon-utils';
 
 describe('genderLabel', () => {
   it('returns Genderless for -1', () => {
@@ -54,5 +59,39 @@ describe('randomIds', () => {
   it('works when count equals max (all ids must be covered)', () => {
     const ids = randomIds(5, 5);
     expect(ids.sort()).toEqual([1, 2, 3, 4, 5]);
+  });
+});
+
+describe('serializeIds', () => {
+  it('joins ids with commas', () => {
+    expect(serializeIds([4, 25, 133])).toBe('4,25,133');
+  });
+});
+
+describe('parseIds', () => {
+  it('parses a valid comma-separated id list', () => {
+    expect(parseIds('4,25,133', 3, 200)).toEqual([4, 25, 133]);
+  });
+
+  it('uses the first entry when ids is provided as an array', () => {
+    expect(parseIds(['7,8,9', '1,2,3'], 3, 200)).toEqual([7, 8, 9]);
+  });
+
+  it('returns null when the count does not match', () => {
+    expect(parseIds('1,2', 3, 200)).toBeNull();
+  });
+
+  it('returns null when any id is duplicated', () => {
+    expect(parseIds('1,1,2', 3, 200)).toBeNull();
+  });
+
+  it('returns null when any id is out of range or invalid', () => {
+    expect(parseIds('1,0,3', 3, 200)).toBeNull();
+    expect(parseIds('1,abc,3', 3, 200)).toBeNull();
+    expect(parseIds('1,201,3', 3, 200)).toBeNull();
+  });
+
+  it('returns null when the value is missing', () => {
+    expect(parseIds(undefined, 3, 200)).toBeNull();
   });
 });
