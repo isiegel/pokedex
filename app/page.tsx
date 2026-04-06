@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import PokemonBrowser from './components/PokemonBrowser';
 import RefreshButton from './components/RefreshButton';
-import { pokeClient } from './lib/pokemon-client';
+import { getPokemon, getPokemonSpecies } from './lib/pokemon-client';
 import { MAX_POKEMON_ID, POKEMON_COUNT } from './lib/pokemon-constants';
 import { parseIds, randomIds, serializeIds } from './lib/pokemon-utils';
 
@@ -16,8 +16,8 @@ export default async function Landing(props: PageProps<'/'>) {
   }
 
   const [pokemon, speciesResults] = await Promise.all([
-    Promise.all(ids.map((id) => pokeClient.pokemon.getPokemonById(id))),
-    Promise.all(ids.map((id) => pokeClient.pokemon.getPokemonSpeciesById(id))),
+    Promise.all(ids.map((id) => getPokemon(id))),
+    Promise.all(ids.map((id) => getPokemonSpecies(id))),
   ]);
   const genderRates = Object.fromEntries(
     ids.map((id, i) => [id, speciesResults[i].gender_rate]),

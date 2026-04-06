@@ -1,7 +1,7 @@
 import FavoriteButton from '@/app/components/FavoriteButton';
 import JsonLd from '@/app/components/JsonLd';
 import TypeBadge from '@/app/components/TypeBadge';
-import { pokeClient } from '@/app/lib/pokemon-client';
+import { getPokemon, getPokemonSpecies } from '@/app/lib/pokemon-client';
 import { MAX_POKEMON_ID, POKEMON_COUNT } from '@/app/lib/pokemon-constants';
 import { genderLabel, parseIds } from '@/app/lib/pokemon-utils';
 import type { Metadata } from 'next';
@@ -15,7 +15,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { id } = await props.params;
   try {
-    const pokemon = await pokeClient.pokemon.getPokemonById(Number(id));
+    const pokemon = await getPokemon(Number(id));
     const name = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
     return {
       title: `${name} | Pokédex`,
@@ -32,8 +32,8 @@ export default async function PokemonPage(props: PageProps<'/pokemon/[id]'>) {
   const ids = parseIds(searchParams.ids, POKEMON_COUNT, MAX_POKEMON_ID);
   // fetch both the pokemon and species data in parallel since they're independent (faster)
   const [pokemon, species] = await Promise.all([
-    pokeClient.pokemon.getPokemonById(Number(id)),
-    pokeClient.pokemon.getPokemonSpeciesById(Number(id)),
+    getPokemon(Number(id)),
+    getPokemonSpecies(Number(id)),
   ]).catch(() => notFound());
 
   // prefer the high-res official artwork; fall back to the small battle sprite
