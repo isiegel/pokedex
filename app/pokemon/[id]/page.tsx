@@ -69,7 +69,7 @@ export default async function PokemonPage(props: PageProps<'/pokemon/[id]'>) {
       <JsonLd data={jsonLd} />
       <div className="max-w-2xl mx-auto">
         <Link
-          href={ids ? { pathname: '/', query: { ids: searchParams.ids } } : '/'}
+          href={ids ? { pathname: '/', query: { ids: searchParams.ids, ...(searchParams.gender ? { gender: searchParams.gender } : {}) } } : '/'}
           className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 mb-8 transition-colors"
         >
           ← Back to Pokédex

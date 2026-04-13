@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import FavoriteButton from './FavoriteButton';
@@ -20,12 +21,14 @@ type CardPokemon = {
 
 type PokemonCardProps = {
   idsParam: string;
+  genderParam: string;
   pokemon: CardPokemon;
   priority?: boolean;
 };
 
-export default function PokemonCard({
+const PokemonCard = memo(function PokemonCard({
   idsParam,
+  genderParam,
   pokemon,
   priority = false,
 }: PokemonCardProps) {
@@ -34,7 +37,7 @@ export default function PokemonCard({
       <Link
         href={{
           pathname: `/pokemon/${pokemon.id}`,
-          query: { ids: idsParam },
+          query: { ids: idsParam, ...(genderParam ? { gender: genderParam } : {}) },
         }}
         className="group bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 flex flex-col items-center gap-2 hover:border-zinc-400 dark:hover:border-zinc-600 hover:shadow-md transition-all"
       >
@@ -69,4 +72,6 @@ export default function PokemonCard({
       />
     </div>
   );
-}
+});
+
+export default PokemonCard;

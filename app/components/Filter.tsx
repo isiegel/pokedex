@@ -1,11 +1,13 @@
-import { Fragment, JSX } from 'react';
+import { Fragment, JSX, memo } from 'react';
 
 export type GenderEntry = 'male' | 'female' | 'genderless' | 'hybrid' | null;
 
-export function Filter({
+function FilterBase({
   handleGenderChange,
+  selectedGenders,
 }: {
   handleGenderChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  selectedGenders: Exclude<GenderEntry, null>[];
 }): JSX.Element {
   const options: Exclude<GenderEntry, null>[] = [
     'male',
@@ -22,6 +24,7 @@ export function Filter({
             type="checkbox"
             value={option}
             id={option}
+            checked={selectedGenders.includes(option)}
             onChange={handleGenderChange}
           />
           <label htmlFor={option} className="mr-1 hover:cursor-pointer">
@@ -32,3 +35,5 @@ export function Filter({
     </div>
   );
 }
+
+export const Filter = memo(FilterBase);
