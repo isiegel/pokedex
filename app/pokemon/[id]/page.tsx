@@ -1,7 +1,9 @@
+import FavoriteButton from '@/app/components/FavoriteButton';
 import JsonLd from '@/app/components/JsonLd';
 import TypeBadge from '@/app/components/TypeBadge';
-import { pokeClient } from '@/app/lib/pokemon-client';
-import { genderLabel } from '@/app/lib/pokemon-utils';
+import { getPokemon, getPokemonSpecies } from '@/app/lib/pokemon-client';
+import { MAX_POKEMON_ID, POKEMON_COUNT } from '@/app/lib/pokemon-constants';
+import { genderLabel, parseIds } from '@/app/lib/pokemon-utils';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,7 +15,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { id } = await props.params;
   try {
-    const pokemon = await pokeClient.pokemon.getPokemonById(Number(id));
+    const pokemon = await getPokemon(Number(id));
     const name = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
     return {
       title: `${name} | Pokédex`,
@@ -26,10 +28,12 @@ export async function generateMetadata(
 
 export default async function PokemonPage(props: PageProps<'/pokemon/[id]'>) {
   const { id } = await props.params;
+  const searchParams = await props.searchParams;
+  const ids = parseIds(searchParams.ids, POKEMON_COUNT, MAX_POKEMON_ID);
   // fetch both the pokemon and species data in parallel since they're independent (faster)
   const [pokemon, species] = await Promise.all([
-    pokeClient.pokemon.getPokemonById(Number(id)),
-    pokeClient.pokemon.getPokemonSpeciesById(Number(id)),
+    getPokemon(Number(id)),
+    getPokemonSpecies(Number(id)),
   ]).catch(() => notFound());
 
   // prefer the high-res official artwork; fall back to the small battle sprite
@@ -65,7 +69,7 @@ export default async function PokemonPage(props: PageProps<'/pokemon/[id]'>) {
       <JsonLd data={jsonLd} />
       <div className="max-w-2xl mx-auto">
         <Link
-          href="/"
+          href={ids ? { pathname: '/', query: { ids: searchParams.ids, ...(searchParams.gender ? { gender: searchParams.gender } : {}) } } : '/'}
           className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 mb-8 transition-colors"
         >
           ← Back to Pokédex
@@ -89,9 +93,15 @@ export default async function PokemonPage(props: PageProps<'/pokemon/[id]'>) {
               <p className="text-sm text-zinc-400 font-mono mb-1">
                 #{String(pokemon.id).padStart(3, '0')}
               </p>
-              <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 capitalize mb-3">
-                {pokemon.name}
-              </h1>
+              <div className="mb-3 flex items-center justify-center gap-3 sm:justify-start">
+                <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 capitalize">
+                  {pokemon.name}
+                </h1>
+                <FavoriteButton
+                  pokemonId={pokemon.id}
+                  pokemonName={pokemon.name}
+                />
+              </div>
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 {pokemon.types.map(({ type }) => (
                   <TypeBadge key={type.name} name={type.name} size="md" />

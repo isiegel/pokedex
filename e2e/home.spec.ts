@@ -26,6 +26,23 @@ test.describe('Home page', () => {
     await expect(page.getByRole('button', { name: text })).toBeVisible();
   });
 
+  test('gender filter is preserved when navigating to a detail page and back', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('a[href^="/pokemon/"]').first().waitFor();
+
+    await page.getByLabel('Genderless').click();
+    await expect(page).toHaveURL(/gender=genderless/);
+
+    // navigate into a detail page via the card link (which carries the gender param)
+    await page.locator('a[href^="/pokemon/"]').first().click();
+    await expect(page).toHaveURL(/\/pokemon\/\d+/);
+    await expect(page).toHaveURL(/gender=genderless/);
+
+    await page.getByRole('link', { name: /back to pokédex/i }).click();
+    await expect(page).toHaveURL(/gender=genderless/);
+    await expect(page.getByLabel('Genderless')).toBeChecked();
+  });
+
   test('Refresh button loads a new set of Pokémon', async ({ page }) => {
     await page.goto('/');
 

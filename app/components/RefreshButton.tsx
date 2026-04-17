@@ -2,15 +2,31 @@
 
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
+import {
+  MAX_POKEMON_ID,
+  POKEMON_COUNT,
+} from '../lib/pokemon-constants';
+import { randomIds, serializeIds } from '../lib/pokemon-utils';
 
-export default function RefreshButton() {
+type RefreshButtonProps = {
+  count?: number;
+  max?: number;
+};
+
+export default function RefreshButton({
+  count = POKEMON_COUNT,
+  max = MAX_POKEMON_ID,
+}: RefreshButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   return (
     <button
-      // router.refresh() re-runs the server component, generating new random IDs
-      onClick={() => startTransition(() => router.refresh())}
+      onClick={() =>
+        startTransition(() =>
+          router.replace(`/?ids=${serializeIds(randomIds(count, max))}`),
+        )
+      }
       disabled={isPending}
       className="text-sm font-medium px-4 py-2 rounded-full border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed enabled:cursor-pointer enabled:hover:bg-zinc-100 enabled:dark:hover:bg-zinc-800"
     >
