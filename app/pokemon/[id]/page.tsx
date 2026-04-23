@@ -8,6 +8,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import styles from './page.module.css';
 
 // automatically used by Next.js to generate the page metadata (title, description, etc.)
 export async function generateMetadata(
@@ -180,12 +181,12 @@ export default async function PokemonPage(props: PageProps<'/pokemon/[id]'>) {
                         {base_stat}
                       </span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-zinc-900 dark:bg-zinc-100 transition-all"
-                        style={{ width: `${(base_stat / maxStat) * 100}%` }}
-                      />
-                    </div>
+                    <progress
+                      className={styles.statBar}
+                      max={maxStat}
+                      value={base_stat}
+                      aria-label={`${stat.name.replace('-', ' ')} base stat`}
+                    />
                   </li>
                 ))}
               </ul>

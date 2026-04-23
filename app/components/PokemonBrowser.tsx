@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { pokeClient } from '../lib/pokemon-client';
 import type { GenderEntry } from './Filter';
 import { Filter } from './Filter';
@@ -14,57 +14,81 @@ type PokemonBrowserProps = {
   genderRates: Record<number, number>;
 };
 
+const parseSelectedGenders = (searchParams: URLSearchParams) => {
+  const genderParam = searchParams.get('gender') ?? '';
+  return genderParam
+    ? (genderParam.split(',').filter(Boolean) as Exclude<GenderEntry, null>[])
+    : [];
+};
+
 export default function PokemonBrowser({
   idsParam,
   pokemon,
   genderRates,
 }: PokemonBrowserProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState('');
-  const genderParam = searchParams.get('gender') ?? '';
-  const genders = genderParam
-    ? (genderParam.split(',') as Exclude<GenderEntry, null>[])
-    : [];
+  const [selectedGenders, setSelectedGenders] = useState<
+    Exclude<GenderEntry, null>[]
+  >(() => parseSelectedGenders(searchParams));
+
+  useEffect(() => {
+    setSelectedGenders(parseSelectedGenders(searchParams));
+  }, [searchParams]);
+
+  const genderParam = selectedGenders.join(',');
   const filteredPokemon = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
     return pokemon.filter((entry) => {
       if (normalizedQuery && !entry.name.toLowerCase().includes(normalizedQuery))
         return false;
-      if (genders.length > 0) {
+      if (selectedGenders.length > 0) {
         const rate = genderRates[entry.id];
         if (rate !== undefined) {
           const matches =
-            (genders.includes('male') && rate === 0) ||
-            (genders.includes('female') && rate === 8) ||
-            (genders.includes('genderless') && rate === -1) ||
-            (genders.includes('hybrid') && rate !== -1 && rate !== 0 && rate !== 8);
+            (selectedGenders.includes('male') && rate === 0) ||
+            (selectedGenders.includes('female') && rate === 8) ||
+            (selectedGenders.includes('genderless') && rate === -1) ||
+            (selectedGenders.includes('hybrid') &&
+              rate !== -1 &&
+              rate !== 0 &&
+              rate !== 8);
           if (!matches) return false;
         }
       }
       return true;
     });
-  }, [pokemon, query, genders, genderRates]);
+  }, [pokemon, query, selectedGenders, genderRates]);
 
   const handleGenderChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const { value, checked } = event.target;
-      const params = new URLSearchParams(searchParams.toString());
-      const current = params.get('gender')?.split(',').filter(Boolean) ?? [];
-      const updated = checked
-        ? [...current, value]
-        : current.filter((g) => g !== value);
-      if (updated.length) {
-        params.set('gender', updated.join(','));
-      } else {
-        params.delete('gender');
-      }
-      const qs = params.toString();
-      router.replace(qs ? `/?${qs}` : '/');
+      setSelectedGenders((current) => {
+        if (checked) {
+          if (current.includes(value as Exclude<GenderEntry, null>)) return current;
+          return [...current, value as Exclude<GenderEntry, null>];
+        }
+        return current.filter((g) => g !== value);
+      });
     },
-    [router, searchParams],
+    [],
   );
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (selectedGenders.length > 0) {
+      params.set('gender', selectedGenders.join(','));
+    } else {
+      params.delete('gender');
+    }
+    const qs = params.toString();
+    const nextUrl = qs ? `/?${qs}` : '/';
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+    if (nextUrl !== currentUrl) {
+      window.history.replaceState(null, '', nextUrl);
+    }
+  }, [searchParams, selectedGenders]);
 
   return (
     <>
@@ -74,7 +98,10 @@ export default function PokemonBrowser({
         </p>
         <SearchInput query={query} onQueryChange={setQuery} />
       </div>
-      <Filter handleGenderChange={handleGenderChange} selectedGenders={genders} />
+      <Filter
+        handleGenderChange={handleGenderChange}
+        selectedGenders={selectedGenders}
+      />
 
       {filteredPokemon.length > 0 ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
