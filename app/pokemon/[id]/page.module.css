@@ -1,0 +1,37 @@
+.statBar {
+  width: 100%;
+  height: 0.375rem;
+  border: 0;
+  border-radius: 9999px;
+  overflow: hidden;
+  appearance: none;
+  background-color: #f4f4f5;
+}
+
+.statBar::-webkit-progress-bar {
+  background-color: #f4f4f5;
+  border-radius: 9999px;
+}
+
+.statBar::-webkit-progress-value {
+  background-color: #18181b;
+  border-radius: 9999px;
+}
+
+.statBar::-moz-progress-bar {
+  background-color: #18181b;
+  border-radius: 9999px;
+}
+
+:global(.dark) .statBar {
+  background-color: #27272a;
+}
+
+:global(.dark) .statBar::-webkit-progress-bar {
+  background-color: #27272a;
+}
+
+:global(.dark) .statBar::-webkit-progress-value,
+:global(.dark) .statBar::-moz-progress-bar {
+  background-color: #f4f4f5;
+}

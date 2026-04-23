@@ -1,10 +1,9 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import PokemonBrowser from '../app/components/PokemonBrowser';
 
 vi.mock('next/navigation', () => ({
-  useRouter: vi.fn(),
   useSearchParams: vi.fn(),
 }));
 
@@ -52,10 +51,9 @@ const genderRates = {
   81: -1,
 };
 
-const mockReplace = vi.fn();
+const mockReplaceState = vi.spyOn(window.history, 'replaceState');
 
 function renderBrowser(searchParamsString = '') {
-  vi.mocked(useRouter).mockReturnValue({ replace: mockReplace } as ReturnType<typeof useRouter>);
   vi.mocked(useSearchParams).mockReturnValue(
     new URLSearchParams(searchParamsString) as ReturnType<typeof useSearchParams>,
   );
@@ -65,9 +63,12 @@ function renderBrowser(searchParamsString = '') {
 }
 
 describe('PokemonBrowser', () => {
+  beforeEach(() => {
+    mockReplaceState.mockClear();
+  });
+
   afterEach(() => {
     cleanup();
-    mockReplace.mockClear();
   });
 
   it('renders the full provided set by default', () => {
@@ -106,36 +107,40 @@ describe('PokemonBrowser', () => {
     expect(screen.getByText('magnemite')).toBeDefined();
   });
 
-  it('checking a gender checkbox calls router.replace with the gender param', () => {
+  it('checking a gender checkbox updates the URL gender param', () => {
     renderBrowser();
 
     fireEvent.click(screen.getByLabelText('Female'));
 
-    expect(mockReplace).toHaveBeenCalledWith('/?gender=female');
+    expect(mockReplaceState).toHaveBeenCalledWith(null, '', '/?gender=female');
   });
 
-  it('checking a second gender checkbox appends to the existing param', () => {
+  it('checking a second gender checkbox appends to the existing param in URL', () => {
     renderBrowser('gender=female');
 
     fireEvent.click(screen.getByLabelText('Genderless'));
 
-    expect(mockReplace).toHaveBeenCalledWith('/?gender=female%2Cgenderless');
+    expect(mockReplaceState).toHaveBeenCalledWith(
+      null,
+      '',
+      '/?gender=female%2Cgenderless',
+    );
   });
 
-  it('unchecking a gender checkbox removes it from the param', () => {
+  it('unchecking a gender checkbox removes it from URL param', () => {
     renderBrowser('gender=female,genderless');
 
     fireEvent.click(screen.getByLabelText('Female'));
 
-    expect(mockReplace).toHaveBeenCalledWith('/?gender=genderless');
+    expect(mockReplaceState).toHaveBeenCalledWith(null, '', '/?gender=genderless');
   });
 
-  it('unchecking the only active gender checkbox removes the param entirely', () => {
+  it('unchecking the only active gender checkbox removes URL param entirely', () => {
     renderBrowser('gender=female');
 
     fireEvent.click(screen.getByLabelText('Female'));
 
-    expect(mockReplace).toHaveBeenCalledWith('/');
+    expect(mockReplaceState).toHaveBeenCalledWith(null, '', '/');
   });
 
   it('shows the empty-state copy when no pokemon match the query', () => {
